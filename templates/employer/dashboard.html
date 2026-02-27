@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Employer Dashboard - JobPortal{% endblock %}
+{% block page_title %}My Dashboard{% endblock %}
+{% block header_actions %}
+<a href="{{ url_for('post_job') }}" class="btn-accent"><i class="fas fa-plus me-1"></i>Post Job</a>
+{% endblock %}
+
+{% block content %}
+<!-- Stats Row -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(99,102,241,0.15);"><i class="fas fa-briefcase" style="color:#6366f1;"></i></div>
+            <div class="stat-number">{{ jobs|length }}</div>
+            <div class="stat-label">Jobs Posted</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(16,185,129,0.15);"><i class="fas fa-check-circle" style="color:#10b981;"></i></div>
+            <div class="stat-number">{{ jobs|selectattr('is_active')|list|length }}</div>
+            <div class="stat-label">Active Jobs</div>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(245,158,11,0.15);"><i class="fas fa-file-alt" style="color:#f59e0b;"></i></div>
+            <div class="stat-number">{{ total_apps }}</div>
+            <div class="stat-label">Total Applications</div>
+        </div>
+    </div>
+</div>
+
+<!-- Jobs Table -->
+<div class="data-card">
+    <div class="data-card-header">
+        <span class="data-card-title">My Job Listings</span>
+        <a href="{{ url_for('post_job') }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-plus me-1"></i>New Job</a>
+    </div>
+    <div class="table-responsive">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Salary</th>
+                    <th>Applications</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if jobs %}
+                {% for job in jobs %}
+                <tr>
+                    <td><strong>{{ job.title }}</strong><br><small style="color:#94a3b8;">{{ job.company }}</small></td>
+                    <td style="color:#94a3b8; font-size:12px;"><i class="fas fa-map-marker-alt"></i> {{ job.location }}</td>
+                    <td><span class="badge-role type-{{ job.job_type|replace(' ','') }}">{{ job.job_type }}</span></td>
+                    <td style="color:#94a3b8; font-size:12px;">{{ job.salary or '—' }}</td>
+                    <td>
+                        <a href="{{ url_for('job_applications', job_id=job.id) }}" 
+                           style="font-family:'Space Mono',monospace; font-weight:700; color:#6366f1; text-decoration:none;">
+                            {{ job.app_count }} <i class="fas fa-arrow-right" style="font-size:10px;"></i>
+                        </a>
+                    </td>
+                    <td>
+                        {% if job.is_active %}
+                        <span class="badge-role badge-active">Active</span>
+                        {% else %}
+                        <span class="badge-role badge-inactive">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td style="color:#94a3b8; font-size:12px;">{{ job.created_at[:10] }}</td>
+                    <td>
+                        <a href="{{ url_for('job_applications', job_id=job.id) }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr><td colspan="8">
+                    <div class="empty-state">
+                        <i class="fas fa-briefcase"></i>
+                        <p>No jobs posted yet</p>
+                        <a href="{{ url_for('post_job') }}" class="btn-accent" style="display:inline-block; text-decoration:none; padding:10px 24px; border-radius:8px; font-size:13px; font-weight:600; color:white; background:linear-gradient(135deg,#6366f1,#8b5cf6);">Post Your First Job</a>
+                    </div>
+                </td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Manage Employers - JobPortal{% endblock %}
+{% block page_title %}Manage Employers{% endblock %}
+
+{% block content %}
+<div class="data-card">
+    <div class="data-card-header">
+        <span class="data-card-title">Registered Employers <span style="color:#94a3b8; font-size:13px; font-weight:400;">({{ employers|length }})</span></span>
+    </div>
+    <div class="table-responsive">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Jobs Posted</th>
+                    <th>Joined</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if employers %}
+                {% for emp in employers %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">
+                                {{ emp.name[0].upper() }}
+                            </div>
+                            <strong>{{ emp.name }}</strong>
+                        </div>
+                    </td>
+                    <td style="color:#94a3b8;">{{ emp.email }}</td>
+                    <td>
+                        <span style="font-family:'Space Mono',monospace; font-weight:700; color:#6366f1;">{{ emp.job_count }}</span>
+                    </td>
+                    <td style="color:#94a3b8; font-size:12px;">{{ emp.created_at[:10] }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('admin_delete_employer', uid=emp.id) }}" class="d-inline"
+                              onsubmit="return confirm('Delete this employer and all their jobs?')">
+                            <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash me-1"></i>Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr><td colspan="5"><div class="empty-state"><i class="fas fa-building"></i><p>No employers registered yet</p></div></td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

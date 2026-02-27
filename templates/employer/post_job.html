@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Post a Job - JobPortal{% endblock %}
+{% block page_title %}Post a Job{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="data-card">
+            <div class="data-card-header">
+                <span class="data-card-title">Job Details</span>
+            </div>
+            <div class="p-4">
+                <form method="POST">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Job Title *</label>
+                            <input type="text" name="title" class="form-control" placeholder="e.g. Senior Python Developer" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Company Name *</label>
+                            <input type="text" name="company" class="form-control" placeholder="Your company name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Location *</label>
+                            <input type="text" name="location" class="form-control" placeholder="e.g. Mumbai, India / Remote" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Job Type *</label>
+                            <select name="job_type" class="form-select" required>
+                                <option value="" disabled selected>Select type</option>
+                                <option value="Full-time">Full-time</option>
+                                <option value="Part-time">Part-time</option>
+                                <option value="Contract">Contract</option>
+                                <option value="Remote">Remote</option>
+                                <option value="Internship">Internship</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Salary Range</label>
+                            <input type="text" name="salary" class="form-control" placeholder="e.g. ₹8-12 LPA">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Job Description *</label>
+                            <textarea name="description" class="form-control" rows="5" placeholder="Describe the role, responsibilities, and what the candidate will do..." required></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Requirements</label>
+                            <textarea name="requirements" class="form-control" rows="4" placeholder="List the skills, experience, and qualifications required..."></textarea>
+                        </div>
+                        <div class="col-12 d-flex gap-2 justify-content-end mt-2">
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-sm" style="border:1px solid #334155; color:#94a3b8; border-radius:8px; padding:8px 20px;">Cancel</a>
+                            <button type="submit" class="btn-accent">Post Job</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

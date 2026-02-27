@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}JobPortal{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sidebar-width: 240px;
+            --sidebar-collapsed: 68px;
+            --primary: #0f172a;
+            --accent: #6366f1;
+            --accent2: #ec4899;
+            --surface: #1e293b;
+            --surface2: #0f172a;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --card-bg: #1e293b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #0a0f1e;
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        /* SIDEBAR */
+        #sidebar {
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            width: var(--sidebar-collapsed);
+            background: var(--surface2);
+            border-right: 1px solid var(--border);
+            z-index: 1000;
+            transition: width var(--transition);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        #sidebar:hover, #sidebar.expanded {
+            width: var(--sidebar-width);
+        }
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 16px;
+            border-bottom: 1px solid var(--border);
+            min-height: 70px;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .brand-icon {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; font-weight: 800;
+            color: white; flex-shrink: 0;
+            font-family: 'Space Mono', monospace;
+        }
+        .brand-text {
+            font-size: 16px; font-weight: 800;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            opacity: 0; transition: opacity var(--transition);
+        }
+        #sidebar:hover .brand-text, #sidebar.expanded .brand-text { opacity: 1; }
+        .sidebar-nav { flex: 1; padding: 12px 0; overflow-y: auto; overflow-x: hidden; }
+        .nav-section-title {
+            font-size: 9px; font-weight: 700; letter-spacing: 1.5px;
+            color: var(--text-muted); padding: 8px 20px 4px;
+            text-transform: uppercase; white-space: nowrap;
+            opacity: 0; transition: opacity var(--transition);
+        }
+        #sidebar:hover .nav-section-title, #sidebar.expanded .nav-section-title { opacity: 1; }
+        .nav-link-item {
+            display: flex; align-items: center; gap: 14px;
+            padding: 10px 16px; color: var(--text-muted);
+            text-decoration: none; transition: all var(--transition);
+            border-radius: 0; white-space: nowrap; position: relative;
+            margin: 2px 8px; border-radius: 8px;
+        }
+        .nav-link-item:hover {
+            background: rgba(99,102,241,0.12);
+            color: var(--accent);
+        }
+        .nav-link-item.active {
+            background: rgba(99,102,241,0.18);
+            color: var(--accent);
+        }
+        .nav-link-item.active::before {
+            content: '';
+            position: absolute; left: 0; top: 50%;
+            transform: translateY(-50%);
+            width: 3px; height: 60%;
+            background: var(--accent); border-radius: 0 3px 3px 0;
+        }
+        .nav-icon {
+            width: 36px; height: 36px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px;
+        }
+        .nav-label {
+            font-size: 13px; font-weight: 600;
+            opacity: 0; transition: opacity var(--transition);
+        }
+        #sidebar:hover .nav-label, #sidebar.expanded .nav-label { opacity: 1; }
+        .sidebar-user {
+            padding: 16px; border-top: 1px solid var(--border);
+            display: flex; align-items: center; gap: 12px;
+            white-space: nowrap; overflow: hidden;
+        }
+        .user-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 700; flex-shrink: 0;
+        }
+        .user-info { opacity: 0; transition: opacity var(--transition); }
+        #sidebar:hover .user-info, #sidebar.expanded .user-info { opacity: 1; }
+        .user-name { font-size: 12px; font-weight: 700; line-height: 1.2; }
+        .user-role { font-size: 10px; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* MAIN CONTENT */
+        #main-content {
+            margin-left: var(--sidebar-collapsed);
+            transition: margin-left var(--transition);
+            min-height: 100vh;
+            display: flex; flex-direction: column;
+        }
+        #sidebar:hover ~ #main-content { margin-left: var(--sidebar-width); }
+
+        /* HEADER */
+        .main-header {
+            background: rgba(15,23,42,0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+            height: 70px;
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .page-title { font-size: 18px; font-weight: 700; }
+        .header-actions { display: flex; align-items: center; gap: 12px; }
+        .btn-accent {
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            border: none; color: white; padding: 8px 18px;
+            border-radius: 8px; font-size: 13px; font-weight: 600;
+            transition: all 0.2s; cursor: pointer;
+        }
+        .btn-accent:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        /* PAGE CONTENT */
+        .page-content {
+            flex: 1; padding: 28px 24px;
+            max-width: 1400px; width: 100%;
+        }
+
+        /* FOOTER */
+        .main-footer {
+            background: var(--surface2);
+            border-top: 1px solid var(--border);
+            padding: 16px 24px;
+            font-size: 12px; color: var(--text-muted);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .footer-brand {
+            font-family: 'Space Mono', monospace;
+            font-weight: 700; font-size: 13px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        /* CARDS */
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            position: relative; overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(99,102,241,0.15);
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+        }
+        .stat-number {
+            font-size: 36px; font-weight: 800;
+            font-family: 'Space Mono', monospace;
+            background: linear-gradient(135deg, #fff, var(--text-muted));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .stat-label { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-icon {
+            width: 48px; height: 48px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; margin-bottom: 16px;
+        }
+
+        /* DATA CARDS */
+        .data-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .data-card-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .data-card-title { font-size: 15px; font-weight: 700; }
+
+        /* TABLE */
+        .custom-table {
+            width: 100%; border-collapse: collapse;
+        }
+        .custom-table th {
+            background: rgba(99,102,241,0.08);
+            padding: 12px 16px; font-size: 11px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);
+            border-bottom: 1px solid var(--border); text-align: left;
+        }
+        .custom-table td {
+            padding: 14px 16px; font-size: 13px;
+            border-bottom: 1px solid rgba(51,65,85,0.5);
+            vertical-align: middle;
+        }
+        .custom-table tr:last-child td { border-bottom: none; }
+        .custom-table tr:hover td { background: rgba(99,102,241,0.04); }
+
+        /* BADGES */
+        .badge-role {
+            padding: 4px 10px; border-radius: 20px; font-size: 10px;
+            font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .badge-active { background: rgba(16,185,129,0.15); color: var(--success); }
+        .badge-inactive { background: rgba(239,68,68,0.15); color: var(--danger); }
+        .badge-pending { background: rgba(245,158,11,0.15); color: var(--warning); }
+        .badge-employer { background: rgba(99,102,241,0.15); color: var(--accent); }
+        .badge-jobseeker { background: rgba(236,72,153,0.15); color: var(--accent2); }
+
+        /* JOB CARD */
+        .job-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px; padding: 20px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .job-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(99,102,241,0.15);
+        }
+        .job-type-badge {
+            padding: 4px 12px; border-radius: 20px; font-size: 11px;
+            font-weight: 600;
+        }
+        .type-fulltime { background: rgba(16,185,129,0.15); color: var(--success); }
+        .type-parttime { background: rgba(245,158,11,0.15); color: var(--warning); }
+        .type-contract { background: rgba(99,102,241,0.15); color: var(--accent); }
+        .type-remote { background: rgba(236,72,153,0.15); color: var(--accent2); }
+        .type-internship { background: rgba(14,165,233,0.15); color: #38bdf8; }
+
+        /* FORMS */
+        .form-control, .form-select, .form-control:focus, .form-select:focus {
+            background: rgba(30,41,59,0.8) !important;
+            border: 1px solid var(--border) !important;
+            color: var(--text) !important;
+            border-radius: 10px !important;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.15) !important;
+        }
+        .form-label { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+
+        /* ALERTS */
+        .alert { border-radius: 10px; border: none; font-size: 13px; font-weight: 500; }
+        .alert-success { background: rgba(16,185,129,0.15); color: var(--success); }
+        .alert-danger { background: rgba(239,68,68,0.15); color: var(--danger); }
+        .alert-warning { background: rgba(245,158,11,0.15); color: var(--warning); }
+
+        /* BUTTONS */
+        .btn-sm { border-radius: 6px !important; font-size: 12px !important; font-weight: 600 !important; }
+        .btn-outline-primary { border-color: var(--accent) !important; color: var(--accent) !important; }
+        .btn-outline-primary:hover { background: var(--accent) !important; color: white !important; }
+        .btn-outline-danger { border-color: var(--danger) !important; color: var(--danger) !important; }
+        .btn-outline-danger:hover { background: var(--danger) !important; color: white !important; }
+        .btn-outline-success { border-color: var(--success) !important; color: var(--success) !important; }
+        .btn-outline-success:hover { background: var(--success) !important; color: white !important; }
+
+        /* MOBILE */
+        .sidebar-toggle {
+            display: none;
+            position: fixed; top: 16px; left: 16px; z-index: 1100;
+            background: var(--accent); border: none; border-radius: 8px;
+            color: white; width: 36px; height: 36px;
+            align-items: center; justify-content: center; font-size: 16px;
+            cursor: pointer;
+        }
+        .sidebar-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 999;
+        }
+
+        @media (max-width: 768px) {
+            #sidebar { transform: translateX(-100%); width: var(--sidebar-width) !important; }
+            #sidebar.mobile-open { transform: translateX(0); }
+            #sidebar:hover { width: var(--sidebar-width) !important; }
+            #sidebar .brand-text, #sidebar .nav-label, #sidebar .nav-section-title, #sidebar .user-info { opacity: 1 !important; }
+            #main-content { margin-left: 0 !important; }
+            #sidebar:hover ~ #main-content { margin-left: 0 !important; }
+            .sidebar-toggle { display: flex; }
+            .sidebar-overlay.show { display: block; }
+            .page-content { padding: 20px 16px; }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        /* Period tab */
+        .period-tabs { display: flex; gap: 4px; background: rgba(15,23,42,0.8); border-radius: 10px; padding: 4px; }
+        .period-tab {
+            padding: 6px 14px; border-radius: 7px; cursor: pointer;
+            font-size: 12px; font-weight: 600; color: var(--text-muted);
+            transition: all 0.2s; border: none; background: transparent;
+        }
+        .period-tab.active { background: var(--accent); color: white; }
+
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+        .empty-state i { font-size: 48px; margin-bottom: 16px; opacity: 0.3; }
+    </style>
+    {% block head %}{% endblock %}
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div id="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-icon">JP</div>
+        <span class="brand-text">JobPortal</span>
+    </div>
+
+    <nav class="sidebar-nav">
+        {% set role = session.get('role') %}
+
+        {% if role == 'admin' %}
+        <div class="nav-section-title">Main</div>
+        <a href="{{ url_for('dashboard') }}" class="nav-link-item {% if request.endpoint=='dashboard' %}active{% endif %}">
+            <span class="nav-icon"><i class="fas fa-chart-pie"></i></span>
+            <span class="nav-label">Dashboard</span>
+        </a>
+        <div class="nav-section-title">Manage</div>
+        <a href="{{ url_for('admin_jobs') }}" class="nav-link-item {% if request.endpoint=='admin_jobs' %}active{% endif %}">
+            <span class="nav-icon"><i class="fas fa-briefcase"></i></span>
+            <span class="nav-label">Jobs</span>
+        </a>
+        <a href="{{ url_for('admin_employers') }}" class="nav-link-item {% if request.endpoint=='admin_employers' %}active{% endif %}">
+            <span class="nav-icon"><i class="fas fa-building"></i></span>
+            <span class="nav-label">Employers</span>
+        </a>
+        <a href="{{ url_for('admin_jobseekers') }}" class="nav-link-item {% if request.endpoint=='admin_jobseekers' %}active{% endif %}">
+            <span class="nav-icon"><i class="fas fa-users"></i></span>
+            <span class="nav-label">Job Seekers</span>
+        </a>
+
+        {% elif role == 'employer' %}
+        <div class="nav-section-title">Main</div>
+        <a href="{{ url_for('dashboard') }}" class="nav-link-item {% if request.endpoint=='dashboard' %}active{% endif %}">
+            <span class="nav-icon"><i class="fas fa-home"></i></span>
+            <span class="nav-label">Dashboard</span>
+        </a>
+        <div class="nav-section-title">Jobs</div>
+        <a href="{{ url_for('post_job') }}" class="nav-link-item {% if request.endpoint=='post_job' %}active{% endif %}">
+            <span class="nav-icon"><i class="fas fa-plus-circle"></i></span>
+            <span class="nav-label">Post a Job</span>
+        </a>
+
+        {% elif role == 'jobseeker' %}
+        <div class="nav-section-title">Main</div>
+        <a href="{{ url_for('dashboard') }}" class="nav-link-item {% if request.endpoint=='dashboard' %}active{% endif %}">
+            <span class="nav-icon"><i class="fas fa-home"></i></span>
+            <span class="nav-label">Dashboard</span>
+        </a>
+        <div class="nav-section-title">Jobs</div>
+        <a href="{{ url_for('browse_jobs') }}" class="nav-link-item {% if request.endpoint=='browse_jobs' %}active{% endif %}">
+            <span class="nav-icon"><i class="fas fa-search"></i></span>
+            <span class="nav-label">Browse Jobs</span>
+        </a>
+        <a href="{{ url_for('my_applications') }}" class="nav-link-item {% if request.endpoint=='my_applications' %}active{% endif %}">
+            <span class="nav-icon"><i class="fas fa-file-alt"></i></span>
+            <span class="nav-label">My Applications</span>
+        </a>
+        <div class="nav-section-title">Account</div>
+        <a href="{{ url_for('profile') }}" class="nav-link-item {% if request.endpoint=='profile' %}active{% endif %}">
+            <span class="nav-icon"><i class="fas fa-user-circle"></i></span>
+            <span class="nav-label">My Profile</span>
+        </a>
+        {% endif %}
+    </nav>
+
+    <div class="sidebar-user">
+        <div class="user-avatar">{{ session.get('name', 'U')[0].upper() }}</div>
+        <div class="user-info">
+            <div class="user-name">{{ session.get('name', 'User') }}</div>
+            <div class="user-role">{{ session.get('role', '') }}</div>
+        </div>
+    </div>
+</div>
+
+<div id="main-content">
+    <header class="main-header">
+        <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
+        <div class="header-actions">
+            {% block header_actions %}{% endblock %}
+            <a href="{{ url_for('logout') }}" class="btn btn-sm btn-outline-danger">
+                <i class="fas fa-sign-out-alt me-1"></i> Logout
+            </a>
+        </div>
+    </header>
+
+    <main class="page-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for cat, msg in messages %}
+        <div class="alert alert-{{ cat }} alert-dismissible fade show mb-4" role="alert">
+            {{ msg }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="main-footer">
+        <span class="footer-brand">JobPortal</span>
+        <span>&copy; 2026 All rights reserved</span>
+    </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Mobile sidebar toggle
+    const toggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    toggle.addEventListener('click', () => {
+        sidebar.classList.toggle('mobile-open');
+        overlay.classList.toggle('show');
+    });
+    overlay.addEventListener('click', () => {
+        sidebar.classList.remove('mobile-open');
+        overlay.classList.remove('show');
+    });
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

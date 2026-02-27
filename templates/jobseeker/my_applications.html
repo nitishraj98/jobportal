@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}My Applications - JobPortal{% endblock %}
+{% block page_title %}My Applications{% endblock %}
+
+{% block content %}
+{% if apps %}
+<div class="data-card">
+    <div class="data-card-header">
+        <span class="data-card-title">Application History <span style="color:#94a3b8; font-size:13px; font-weight:400;">({{ apps|length }})</span></span>
+    </div>
+    <div class="table-responsive">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Job</th>
+                    <th>Company</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Salary</th>
+                    <th>Status</th>
+                    <th>Applied On</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in apps %}
+                <tr>
+                    <td>
+                        <strong>{{ app.title }}</strong>
+                        <div style="font-size:11px; color:#64748b;">{{ app.employer_name }}</div>
+                    </td>
+                    <td style="color:#94a3b8;">{{ app.company }}</td>
+                    <td style="color:#94a3b8; font-size:12px;"><i class="fas fa-map-marker-alt"></i> {{ app.location }}</td>
+                    <td><span class="badge-role type-{{ app.job_type|replace(' ','') }}">{{ app.job_type }}</span></td>
+                    <td style="color:#94a3b8; font-size:12px;">{{ app.salary or '—' }}</td>
+                    <td>
+                        {% if app.status == 'pending' %}
+                        <span class="badge-role badge-pending">Pending</span>
+                        {% elif app.status == 'accepted' %}
+                        <span class="badge-role badge-active">Accepted</span>
+                        {% else %}
+                        <span class="badge-role badge-inactive">Rejected</span>
+                        {% endif %}
+                    </td>
+                    <td style="color:#94a3b8; font-size:12px;">{{ app.applied_at[:10] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="empty-state">
+    <i class="fas fa-file-alt"></i>
+    <p>No applications yet</p>
+    <small style="color:#475569; display:block; margin-bottom:20px;">Start applying to jobs that interest you</small>
+    <a href="{{ url_for('browse_jobs') }}" class="btn-accent" style="display:inline-block; text-decoration:none; padding:10px 24px; border-radius:8px; font-size:13px; font-weight:600; color:white; background:linear-gradient(135deg,#6366f1,#8b5cf6);">Browse Jobs</a>
+</div>
+{% endif %}
+{% endblock %}

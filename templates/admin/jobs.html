@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Manage Jobs - JobPortal{% endblock %}
+{% block page_title %}Manage Jobs{% endblock %}
+
+{% block content %}
+<div class="data-card">
+    <div class="data-card-header">
+        <span class="data-card-title">All Job Postings <span style="color:#94a3b8; font-size:13px; font-weight:400;">({{ jobs|length }})</span></span>
+    </div>
+    <div class="table-responsive">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Company</th>
+                    <th>Employer</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Applications</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if jobs %}
+                {% for job in jobs %}
+                <tr>
+                    <td><strong style="font-size:13px;">{{ job.title }}</strong></td>
+                    <td style="color:#94a3b8;">{{ job.company }}</td>
+                    <td style="color:#94a3b8;">{{ job.employer_name }}</td>
+                    <td style="color:#94a3b8; font-size:12px;"><i class="fas fa-map-marker-alt"></i> {{ job.location }}</td>
+                    <td><span class="badge-role type-{{ job.job_type|replace(' ','') }}">{{ job.job_type }}</span></td>
+                    <td>
+                        <span style="font-family:'Space Mono',monospace; font-weight:700; color:#6366f1;">{{ job.app_count }}</span>
+                    </td>
+                    <td>
+                        {% if job.is_active %}
+                        <span class="badge-role badge-active">Active</span>
+                        {% else %}
+                        <span class="badge-role badge-inactive">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td style="color:#94a3b8; font-size:12px;">{{ job.created_at[:10] }}</td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            <form method="POST" action="{{ url_for('admin_toggle_job', job_id=job.id) }}" class="d-inline">
+                                <button type="submit" class="btn btn-sm {% if job.is_active %}btn-outline-danger{% else %}btn-outline-success{% endif %}">
+                                    {% if job.is_active %}<i class="fas fa-ban"></i>{% else %}<i class="fas fa-check"></i>{% endif %}
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ url_for('admin_delete_job', job_id=job.id) }}" class="d-inline"
+                                  onsubmit="return confirm('Delete this job?')">
+                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr><td colspan="9"><div class="empty-state"><i class="fas fa-briefcase"></i><p>No jobs posted yet</p></div></td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

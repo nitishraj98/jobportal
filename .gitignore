@@ -1,0 +1,6 @@
+echo "jobportal.db
+__pycache__/
+*.pyc
+venv/
+env/
+.env" > .gitignore

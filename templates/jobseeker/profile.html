@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}My Profile - JobPortal{% endblock %}
+{% block page_title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <!-- Profile Header Card -->
+        <div class="stat-card mb-4" style="display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
+            <div style="width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg,#ec4899,#f43f5e); display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:800; flex-shrink:0;">
+                {{ session.name[0].upper() }}
+            </div>
+            <div>
+                <h2 style="font-size:22px; font-weight:800; margin:0 0 4px;">{{ user.name }}</h2>
+                <div style="color:#94a3b8; font-size:13px;">{{ user.email }}</div>
+                <span class="badge-role badge-jobseeker mt-1" style="display:inline-block;">Job Seeker</span>
+            </div>
+        </div>
+
+        <!-- Edit Form -->
+        <div class="data-card">
+            <div class="data-card-header">
+                <span class="data-card-title">Edit Profile</span>
+            </div>
+            <div class="p-4">
+                <form method="POST">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" name="name" class="form-control" value="{{ user.name }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Phone Number</label>
+                            <input type="text" name="phone" class="form-control" placeholder="+91 98765 43210" value="{{ profile.phone if profile else '' }}">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Skills</label>
+                            <input type="text" name="skills" class="form-control" placeholder="e.g. Python, Django, React, SQL" value="{{ profile.skills if profile else '' }}">
+                            <div style="font-size:11px; color:#475569; margin-top:4px;">Separate skills with commas</div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Work Experience</label>
+                            <textarea name="experience" class="form-control" rows="3" placeholder="Briefly describe your work experience and years of experience...">{{ profile.experience if profile else '' }}</textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">About Me / Resume Summary</label>
+                            <textarea name="resume_text" class="form-control" rows="5" placeholder="Write a brief summary about yourself, your career goals, and key achievements...">{{ profile.resume_text if profile else '' }}</textarea>
+                        </div>
+                        <div class="col-12 d-flex justify-content-end gap-2 mt-2">
+                            <button type="submit" class="btn-accent"><i class="fas fa-save me-1"></i> Save Changes</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

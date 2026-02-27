@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard - JobPortal{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Period Tabs -->
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+    <div>
+        <p style="color:#94a3b8; font-size:13px; margin:0;">Overview of your platform's activity</p>
+    </div>
+    <div class="period-tabs" id="periodTabs">
+        <button class="period-tab active" data-period="daily">Daily</button>
+        <button class="period-tab" data-period="weekly">Weekly</button>
+        <button class="period-tab" data-period="monthly">Monthly</button>
+        <button class="period-tab" data-period="yearly">Yearly</button>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(99,102,241,0.15);">
+                <i class="fas fa-briefcase" style="color:#6366f1;"></i>
+            </div>
+            <div class="stat-number" id="jobs-count">{{ stats.daily_jobs }}</div>
+            <div class="stat-label">Jobs Posted</div>
+            <div style="font-size:11px; color:#94a3b8; margin-top:4px;" id="jobs-total">{{ stats.total_jobs }} total</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(16,185,129,0.15);">
+                <i class="fas fa-building" style="color:#10b981;"></i>
+            </div>
+            <div class="stat-number" id="employers-count">{{ stats.daily_employers }}</div>
+            <div class="stat-label">Employers</div>
+            <div style="font-size:11px; color:#94a3b8; margin-top:4px;" id="employers-total">{{ stats.total_employers }} total</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(236,72,153,0.15);">
+                <i class="fas fa-users" style="color:#ec4899;"></i>
+            </div>
+            <div class="stat-number" id="seekers-count">{{ stats.daily_seekers }}</div>
+            <div class="stat-label">Job Seekers</div>
+            <div style="font-size:11px; color:#94a3b8; margin-top:4px;" id="seekers-total">{{ stats.total_jobseekers }} total</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(245,158,11,0.15);">
+                <i class="fas fa-file-alt" style="color:#f59e0b;"></i>
+            </div>
+            <div class="stat-number">{{ stats.total_applications }}</div>
+            <div class="stat-label">Total Applications</div>
+            <div style="font-size:11px; color:#94a3b8; margin-top:4px;">All time</div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Jobs Table -->
+<div class="data-card">
+    <div class="data-card-header">
+        <span class="data-card-title">Recent Job Postings</span>
+        <a href="{{ url_for('admin_jobs') }}" class="btn btn-sm btn-outline-primary">View All</a>
+    </div>
+    <div class="table-responsive">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Job Title</th>
+                    <th>Company</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Posted</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if recent_jobs %}
+                {% for job in recent_jobs %}
+                <tr>
+                    <td><strong>{{ job.title }}</strong></td>
+                    <td>{{ job.company }}</td>
+                    <td><i class="fas fa-map-marker-alt" style="color:#94a3b8;"></i> {{ job.location }}</td>
+                    <td>
+                        <span class="badge-role type-{{ job.job_type|replace(' ','') }}">{{ job.job_type }}</span>
+                    </td>
+                    <td>
+                        {% if job.is_active %}
+                        <span class="badge-role badge-active">Active</span>
+                        {% else %}
+                        <span class="badge-role badge-inactive">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td style="color:#94a3b8; font-size:12px;">{{ job.created_at[:10] }}</td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr><td colspan="6" class="text-center" style="color:#94a3b8; padding:30px;">No jobs yet</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const statsData = {
+    daily: { jobs: {{ stats.daily_jobs }}, employers: {{ stats.daily_employers }}, seekers: {{ stats.daily_seekers }} },
+    weekly: { jobs: {{ stats.weekly_jobs }}, employers: {{ stats.weekly_employers }}, seekers: {{ stats.weekly_seekers }} },
+    monthly: { jobs: {{ stats.monthly_jobs }}, employers: {{ stats.monthly_employers }}, seekers: {{ stats.monthly_seekers }} },
+    yearly: { jobs: {{ stats.yearly_jobs }}, employers: {{ stats.yearly_employers }}, seekers: {{ stats.yearly_seekers }} }
+};
+
+document.querySelectorAll('.period-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const period = tab.dataset.period;
+        const d = statsData[period];
+        document.getElementById('jobs-count').textContent = d.jobs;
+        document.getElementById('employers-count').textContent = d.employers;
+        document.getElementById('seekers-count').textContent = d.seekers;
+    });
+});
+</script>
+{% endblock %}
