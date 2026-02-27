@@ -6,7 +6,7 @@ import hashlib
 import os
 
 app = Flask(__name__)
-app.secret_key = 'jobportal_secret_key_2024'
+app.secret_key = '652344ghfr87y34879thfggvbhgu8hrtgrbyfbgjyhj'
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
