@@ -1,44 +1,104 @@
 # JobPortal — Flask Web Application
 
-A full-featured, mobile-responsive job portal built with Python Flask, SQLite, and Bootstrap 5.
-
-## Features
-
-### Three User Roles
-| Role | Capabilities |
-|------|-------------|
-| **Admin** | Dashboard with daily/weekly/monthly/yearly stats; manage all jobs, employers & jobseekers |
-| **Employer** | Register/login, post jobs, view applications per listing |
-| **Job Seeker** | Register/login, browse & search jobs, apply with cover letter, view application history, manage profile |
-
-### UI Highlights
-- Dark-themed, modern design with indigo/pink accent palette
-- Collapsible sidebar — icons only when collapsed, full labels on hover
-- Fully responsive across desktop, tablet, and mobile
-- Period-based stats (Daily / Weekly / Monthly / Yearly) on Admin dashboard
-- Apply-to-job modal with cover letter field
-- Role-based navigation — each user type sees only their relevant pages
+A full-featured, mobile-responsive Job Portal web application built as part of a technical assignment. The application supports three user roles — Admin, Employer, and Job Seeker — each with their own dashboard and set of functionalities.
 
 ---
 
 ## Tech Stack
-- **Backend**: Python 3 + Flask
-- **Database**: SQLite (via Python's built-in `sqlite3`)
-- **Frontend**: Bootstrap 5.3 + Font Awesome 6 + Google Fonts
-- **Auth**: Session-based with SHA-256 hashed passwords
+
+| Layer | Technology |
+|-------|-----------|
+| Backend | Python 3 + Flask |
+| Database | SQLite (via Python's built-in `sqlite3`) |
+| Frontend | Bootstrap 5.3 + Font Awesome 6 |
+| Fonts | Google Fonts (Plus Jakarta Sans, Space Mono) |
+| Auth | Session-based with SHA-256 hashed passwords |
+
+---
+
+## Features Implemented
+
+### Authentication & Access Control
+- User registration with role selection (Employer / Job Seeker)
+- Secure login with SHA-256 password hashing
+- Session-based authentication
+- Role-based access control — each role can only access their own pages
+- Unauthorized access redirects to login
+
+### Admin
+- Centralized dashboard with platform-wide statistics
+- Stats segmented by **Daily / Weekly / Monthly / Yearly** periods
+- View total jobs posted, registered employers, job seekers, and applications
+- Manage all job listings — toggle active/inactive, delete jobs
+- Manage all employers — view their job count, delete accounts
+- Manage all job seekers — view their application count, delete accounts
+
+### Employer
+- Register and log in as an employer
+- Post new job listings with title, company, location, type, salary, description, and requirements
+- Dashboard showing all posted jobs with application counts
+- View applications submitted for each job listing
+- See applicant details including name, email, phone, skills, experience, resume summary, and cover letter
+
+### Job Seeker
+- Register and log in as a job seeker
+- Browse all active job listings
+- Search and filter jobs by keyword, location, and job type
+- Apply for jobs with an optional cover letter (via modal)
+- View application history with status (Pending / Accepted / Rejected)
+- Manage profile — update name, phone, skills, experience, and resume summary
+
+### UI & Layout
+- Dark-themed modern design with a professional look
+- **Collapsible vertical sidebar** — shows only icons when collapsed, expands with labels on hover
+- Fully **mobile responsive** — hamburger menu with slide-out overlay on small screens
+- Sticky header with page title and logout button
+- Footer on every page
+- Flash messages for all user actions (success, error, warning)
+- Empty state illustrations for pages with no data
+
+---
+
+## Project Structure
+
+```
+jobportal/
+├── app.py                   # Main Flask app — all routes and logic
+├── database.py              # DB schema, initialization, and seeding
+├── requirements.txt         # Python dependencies
+├── README.md
+└── templates/
+    ├── base.html                # Shared layout (sidebar, header, footer)
+    ├── login.html
+    ├── register.html
+    ├── admin/
+    │   ├── dashboard.html       # Stats with period toggle
+    │   ├── jobs.html            # Manage all jobs
+    │   ├── employers.html       # Manage all employers
+    │   └── jobseekers.html      # Manage all job seekers
+    ├── employer/
+    │   ├── dashboard.html       # My jobs + application counts
+    │   ├── post_job.html        # Post a new job form
+    │   └── applications.html    # View applicants for a job
+    └── jobseeker/
+        ├── dashboard.html       # Latest job openings
+        ├── browse_jobs.html     # Search & filter jobs
+        ├── my_applications.html # Application history
+        └── profile.html         # Edit profile
+```
 
 ---
 
 ## Setup & Run
 
-### 1. Clone / Extract
-```bash
-unzip jobportal.zip
+### 1. Clone the Repository
+```
+git clone https://github.com/nitishraj98/jobportal.git
 cd jobportal
 ```
 
-### 2. Create a Virtual Environment (recommended)
-```bash
+### 2. Create a Virtual Environment
+```
 python -m venv venv
 # macOS/Linux:
 source venv/bin/activate
@@ -47,74 +107,32 @@ venv\Scripts\activate
 ```
 
 ### 3. Install Dependencies
-```bash
+```
 pip install -r requirements.txt
 ```
 
 ### 4. Run the Application
-```bash
+```
 python app.py
 ```
 
-Then open your browser to: **http://127.0.0.1:5000**
+Open your browser at: **http://127.0.0.1:5000**
+
+> The database is created automatically on first run. No manual setup needed.
 
 ---
 
-## Default Admin Credentials
-| Field | Value |
-|-------|-------|
-| Email | admin@jobportal.com |
-| Password | admin123 |
+## Demo Credentials
+
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@jobportal.com | admin123 |
+| Employer | Register via /register | — |
+| Job Seeker | Register via /register | — |
 
 ---
 
-## Project Structure
-```
-jobportal/
-├── app.py              # Main Flask application & all routes
-├── database.py         # DB init, schema, seeding
-├── requirements.txt
-├── jobportal.db        # Auto-created on first run
-└── templates/
-    ├── base.html           # Shared layout (sidebar, header, footer)
-    ├── login.html
-    ├── register.html
-    ├── admin/
-    │   ├── dashboard.html
-    │   ├── jobs.html
-    │   ├── employers.html
-    │   └── jobseekers.html
-    ├── employer/
-    │   ├── dashboard.html
-    │   ├── post_job.html
-    │   └── applications.html
-    └── jobseeker/
-        ├── dashboard.html
-        ├── browse_jobs.html
-        ├── my_applications.html
-        └── profile.html
-```
+## Developer
 
----
-
-## User Flows
-
-### Employer
-1. Register → Select "Employer" role
-2. Log in → See dashboard with your job listings
-3. Click **Post a Job** → Fill in details
-4. Click application count on any job → View applicants with their profiles & cover letters
-
-### Job Seeker
-1. Register → Select "Job Seeker" role  
-2. Log in → See latest job openings
-3. **Browse Jobs** → Search/filter, click "Apply Now", add optional cover letter
-4. **My Applications** → View your application history & statuses
-5. **My Profile** → Add phone, skills, experience, resume summary
-
-### Admin
-1. Log in with admin credentials
-2. **Dashboard** → Toggle between Daily / Weekly / Monthly / Yearly stats
-3. **Jobs** → View all postings, toggle active/inactive, delete
-4. **Employers** → View all employers, delete accounts
-5. **Job Seekers** → View all seekers, delete accounts
+**Nitish Raj**  
+Assignment submission for pre-interview technical evaluation.
